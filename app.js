@@ -276,6 +276,7 @@ function render({ focus = false } = {}) {
     save();
   }
   const pages = { services: servicePage, browse: browsePage, shelf: shelfPage, settings: settingsPage, tonight: tonightPage };
+  screen.classList.toggle('main-tab', page === 'tonight' || page === 'shelf');
   screen.innerHTML = pages[page]();
   tabs.hidden = householdButton.hidden = state.onboarding !== 'done';
   tabs.querySelectorAll('button').forEach(tab => {
