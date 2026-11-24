@@ -254,13 +254,19 @@ nav [aria-current="page"]::after {
 .catalog-card button[aria-disabled="true"] { background: var(--wash); cursor: default; }
 
 @media (max-width: 36rem), (max-height: 36rem) and (pointer: coarse) {
-  .app:has(main > .hero) > .masthead {
+  .app:has(> .main-tab) > .masthead {
     min-height: 52px;
     padding-top: 4px;
   }
 
-  main:has(> .hero) { padding-bottom: 16px; }
-  main:has(> .hero) > h1 { margin-block: 0 10px; }
+  .main-tab { padding-bottom: 16px; }
+  .main-tab > h1 { margin-block: 0 10px; }
+  .main-tab + nav button { min-height: 56px; }
+  .main-tab + nav img { width: 24px; height: 24px; }
+
+  .main-tab > .intro { margin: 0 8px 14px; }
+  .main-tab > .button { width: calc(100% - 6px); margin-inline: 3px; }
+  .main-tab .shelf-list { gap: 10px; margin-top: 14px; }
 
   .hero { --art-max-height: clamp(8rem, 31svh, 16rem); }
   .hero-art, .slides { max-height: var(--art-max-height); }
@@ -280,13 +286,11 @@ nav [aria-current="page"]::after {
 
   .hero-copy { margin-bottom: 10px; }
   .hero .actions { gap: 8px; }
-  .hero .actions .button {
+  .hero .actions .button, .main-tab > .button {
     min-height: 52px;
     font-size: 1.3rem;
   }
 
   /* Keep the tabs below the actions when Tonight needs to scroll. */
   .app:has(main > .hero) > nav { position: static; }
-  main:has(> .hero) + nav button { min-height: 56px; }
-  main:has(> .hero) + nav img { width: 24px; height: 24px; }
 }
