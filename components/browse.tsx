@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { findSavedShow, manualShow, type Household } from '../lib/household';
+import { findSavedShow, manualShow, starterShows, type Household } from '../lib/household';
 import type { Show } from '../lib/tv';
+import { BackupControls } from './household-settings';
 import { Artwork, Button, Icon } from './shared';
 
 type Search = { status: 'idle' | 'loading' }
   | { status: 'error'; message: string }
   | { status: 'done'; results: Show[] };
 
-export default function Browse({ state, onAdd, onFinish }: {
-  state: Household; onAdd: (show: Show) => void; onFinish: () => void;
+export default function Browse({ state, onAdd, onFinish, onRestore }: {
+  state: Household;
+  onAdd: (show: Show) => void;
+  onFinish: () => void;
+  onRestore: (file: File) => Promise<string>;
 }) {
   const [query, setQuery] = useState('');
   const [manualTitle, setManualTitle] = useState('');
@@ -69,9 +73,17 @@ export default function Browse({ state, onAdd, onFinish }: {
       : 'No TV shows found. Try another title or add it manually.')
     : '';
 
+  function addButton(show: Show) {
+    const added = !!findSavedShow(state, show);
+    return <Button aria-label={(added ? 'Added ' : 'Add ') + show.title} aria-disabled={added}
+      onClick={() => { if (!added) onAdd(show); }}>
+      <Icon name={added ? 'check' : 'plus'} />{added ? 'Added' : 'Add'}
+    </Button>;
+  }
+
   return <>
     <h1>Add our shows</h1>
-    <p className="intro">Search for TV shows your family already knows.</p>
+    <p className="intro">Pick a familiar show below or search for another favorite.</p>
     <form role="search" className="tv-search" onSubmit={submit}>
       <label className="search">
         <Icon name="search" /><span className="sr-only">Search TV shows</span>
@@ -98,25 +110,34 @@ export default function Browse({ state, onAdd, onFinish }: {
         <p className="small" role="status">{manualMessage}</p>
       </form>
     </details>
-    {search.status === 'done' && search.results.length > 0 && <ul className="search-results">{search.results.map(show => {
-      const added = !!findSavedShow(state, show);
-      return <li className="search-result" key={show.id}>
+    {search.status === 'done' && search.results.length > 0 && <ul className="search-results" aria-label="Search results">{search.results.map(show =>
+      <li className="search-result" key={show.id}>
         <Artwork show={show} className="result-art" source={show.artwork?.at(-1)} />
         <div className="result-copy">
           <h2>{show.title}</h2>
           <p className="small">{show.firstAirYear ? show.firstAirYear + ' · ' : ''}Availability unknown</p>
           {show.overview && <p className="result-overview">{show.overview}</p>}
-          <Button aria-label={(added ? 'Added ' : 'Add ') + show.title} aria-disabled={added}
-            onClick={() => { if (!added) onAdd(show); }}>
-            <Icon name={added ? 'check' : 'plus'} />{added ? 'Added' : 'Add'}
-          </Button>
+          {addButton(show)}
         </div>
-      </li>;
-    })}</ul>}
-    {state.onboarding !== 'done' && <div className="catalog-footer">
-      <Button className="primary wide" onClick={onFinish}>
-        {Object.keys(state.shelf).length ? 'Go to Tonight' : 'Continue with an empty shelf'}
-      </Button>
-    </div>}
+      </li>
+    )}</ul>}
+    <section className="starter-shows" aria-labelledby="starter-heading">
+      <h2 id="starter-heading">Familiar favorites</h2>
+      <ul className="starter-grid">{starterShows.map(show =>
+        <li className="starter-card" key={show.id}>
+          <Artwork show={show} className="starter-art" />
+          <h3>{show.title}</h3>
+          {addButton(show)}
+        </li>
+      )}</ul>
+    </section>
+    {state.onboarding !== 'done' && <>
+      <BackupControls onImport={onRestore} />
+      <div className="catalog-footer">
+        <Button className="primary wide" onClick={onFinish}>
+          {Object.keys(state.shelf).length ? 'Go to Tonight' : 'Continue with an empty shelf'}
+        </Button>
+      </div>
+    </>}
   </>;
 }

@@ -37,7 +37,8 @@
       "Fantasy"
     ],
     "posterUrl": null,
-    "service": "Netflix"
+    "service": "Netflix",
+    "artwork": ["https://image.tmdb.org/t/p/w780/7oBGhqJIghRBvOwo5Qe0yM0cnMc.jpg"]
   },
   {
     "id": "mock-4",
@@ -143,7 +144,8 @@
       "Adventure"
     ],
     "posterUrl": null,
-    "service": "Netflix"
+    "service": "Netflix",
+    "artwork": ["https://image.tmdb.org/t/p/w780/x5YFTfPDug6eF76vVuDnbaoNVQK.jpg"]
   },
   {
     "id": "mock-13",

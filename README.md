@@ -34,6 +34,7 @@ Backups contain household names and preferences. They stay in the browser unless
 
 ## Current scope
 
+- A new household starts on **Add our shows**, with four familiar TV picks, search, and manual entry. Streaming service selection is optional in Household settings.
 - Add TV series from TMDB search or enter a title manually. A search fetches the first English-language results page. The Shelf stores title details, artwork references, and stable TMDB IDs locally. Saved shows and manual entry work when TMDB search is unavailable, and an unavailable image falls back to the title.
 - Search results show **Availability unknown**. Service choices are kept at the household level. Any labels on migrated sample titles are marked as sample data. There is no regional provider, subscription, or rental lookup.
 - Search uses a short upstream timeout, a 15-minute server fetch cache, a per-client limit, and a per-instance limit. These limits are best effort on serverless instances.

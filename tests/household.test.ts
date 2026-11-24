@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   addShow, changeDecision, decodeHousehold, emptyHousehold, forLocalDay, legacyKey, loadHousehold,
-  localDay, manualShow, rankedShows, removeShow, removeViewer, shelfShows, storageKey
+  localDay, manualShow, rankedShows, removeShow, removeViewer, shelfShows, starterShows, storageKey
 } from '../lib/household.ts';
 import type { Show } from '../lib/tv.ts';
 
@@ -13,6 +13,25 @@ const show: Show = {
   artwork: ['https://image.tmdb.org/t/p/w780/backdrop.jpg']
 };
 const alternative: Show = { id: 'tmdb:95396', title: 'Severance', firstAirYear: '2022' };
+
+test('fresh and unfinished households start on browsing, preserving existing services', () => {
+  const fresh = emptyHousehold(day);
+  assert.equal(fresh.onboarding, 'browse');
+  const legacy = { ...fresh, onboarding: 'services', services: ['Netflix'] };
+  assert.deepEqual(decodeHousehold(JSON.stringify(legacy), day), { ...fresh, services: ['Netflix'] });
+});
+
+test('illustrated TV starters share the shelf and deduplicate against search in either order', () => {
+  assert.equal(starterShows.length, 4);
+  assert(starterShows.every(starter => starter.artwork?.length && !starter.kind));
+  const bluey = starterShows[0];
+  const tmdbBluey = { id: 'tmdb:82728', title: 'Bluey', firstAirYear: '2018' };
+  for (const [first, second] of [[bluey, tmdbBluey], [tmdbBluey, bluey]]) {
+    const added = addShow(emptyHousehold(day), first);
+    assert.equal(addShow(added, second), added);
+    assert.deepEqual(shelfShows(decodeHousehold(JSON.stringify(added), day)!), [first]);
+  }
+});
 
 test('fresh households start empty; adding stores metadata and keeps viewers unknown', () => {
   const fresh = emptyHousehold(day);
