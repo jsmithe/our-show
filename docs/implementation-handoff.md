@@ -10,7 +10,7 @@ Source: [design issue #19](https://github.com/jsmithe/chatgpt-test/issues/19), [
 Reminder timing and vote thresholds are exploratory, not requirements.
 
 ## Architecture direction
-Before implementation, propose a simple architecture and data model: household-level services and shared title/channel collection; stable viewer and title identities; per-viewer preferences and watch state; separate temporary Tonight decision state. Adding a title must not imply any viewer likes it. Unknown is not dislike. Keep technology choices simple and document them before coding. Target static hosting on GitHub Pages initially; no live API secrets in the client.
+For this POC, use plain HTML, CSS and vanilla JavaScript, local JSON and LocalStorage, with no framework, build tooling, backend or separate architecture phase. Keep files small and use a simple data model: household-level services and shared title/channel collection; stable viewer and title identities; per-viewer preferences and watch state; separate temporary Tonight decision state. Adding a title must not imply any viewer likes it. Unknown is not dislike. Briefly document the data model in the implementation PR; do not undertake a separate architecture exercise. Target static hosting on GitHub Pages initially; no live API secrets in the client.
 
 ## First vertical slice
 - Empty household can select services (include Prime Video, Netflix, Paramount+, YouTube), browse artwork, search and add familiar titles/channels.
@@ -21,7 +21,7 @@ Before implementation, propose a simple architecture and data model: household-l
 - Provider labels in catalog.json are illustrative, not verified availability. Artwork is prototype/design reference material; review rights before public release.
 
 ## Validation
-Use deterministic fixtures and isolated browser storage. Add automated tests for preference ranking (including unknown and dislikes), shared additions, rewatch eligibility, pass/undo/reopen, persistence, migration and mobile gallery behavior. Prefer Playwright on a locally served checkout in CI, with mobile and desktop coverage. The prototype reported 14 passing Node tests and a Chromium mobile walkthrough; these are not tests of this new app.
+Use deterministic fixtures and isolated browser storage. Use a focused browser smoke test of the core flow and lightweight checks of ranking and persistence where practical. Defer comprehensive automated tests, CI infrastructure and full legacy import implementation until after the couch test; keep the legacy fixture for future migration. The prototype reported 14 passing Node tests and a Chromium mobile walkthrough; these are not tests of this new app.
 
 Couch test: start empty, gather a few familiar options, then try Tonight when the kids disagree. Observe whether an older option prompts recognition before the parent supplies a compromise. Record friction and whether a choice was made.
 
