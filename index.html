@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fbf6ed">
+  <title>Our Show</title>
+  <link rel="icon" href="./artwork/icons/sprout.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="masthead">
+      <span class="brand"><img src="./artwork/icons/sprout.svg" alt="">Our Show</span>
+      <button id="household" class="icon-button" type="button" aria-label="Household settings" hidden>
+        <img src="./artwork/icons/settings-2.svg" alt="">
+      </button>
+    </header>
+    <main id="screen" tabindex="-1"><p>Loading Our Show…</p></main>
+    <nav id="tabs" aria-label="Main navigation" hidden>
+      <button type="button" data-action="tonight"><img src="./artwork/icons/house.svg" alt="">Tonight</button>
+      <button type="button" data-action="shelf"><img src="./artwork/icons/library-big.svg" alt="">Shelf</button>
+    </nav>
+    <p id="announcement" class="sr-only" role="status"></p>
+  </div>
+</body>
+</html>
