@@ -145,13 +145,14 @@ export default function OurShow() {
 
   const showTabs = ready && state.onboarding === 'done';
   const mainTab = page === 'shelf' || page === 'tonight';
+  const pageClass = mainTab ? 'compact-page main-tab' : page === 'settings' ? 'compact-page' : undefined;
   return <div className="app">
     <header className="masthead">
       <span className="brand"><Icon name="sprout" />Our Show</span>
       <button className="icon-button" type="button" aria-label="Household settings" hidden={!showTabs}
         onClick={() => open('settings')}><Icon name="settings-2" /></button>
     </header>
-    <main ref={screen} className={mainTab ? 'main-tab' : undefined} tabIndex={-1}>
+    <main ref={screen} className={pageClass} tabIndex={-1}>
       {storageMessage && <p className="storage-message small" role="alert">{storageMessage}</p>}
       {!ready ? <p>Loading Our Show…</p> : {
         browse: <Browse state={state} onAdd={add} onFinish={finish} onRestore={restore} />,

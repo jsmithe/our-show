@@ -247,13 +247,13 @@ nav [aria-current="page"]::after {
 
 
 @media (max-width: 36rem), (max-height: 36rem) and (pointer: coarse) {
-  .app:has(> .main-tab) > .masthead {
+  .app:has(> .compact-page) > .masthead {
     min-height: 52px;
     padding-top: 4px;
   }
 
   .main-tab { padding-bottom: 16px; }
-  .main-tab > h1 { margin-block: 0 10px; }
+  .compact-page > h1 { margin-block: 0 10px; }
   .main-tab + nav button { min-height: 56px; }
   .main-tab + nav img { width: 24px; height: 24px; }
 
