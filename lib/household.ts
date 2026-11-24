@@ -15,7 +15,7 @@ export type ShelfEntry = {
   progress: Record<number, Progress>;
 };
 export type Household = {
-  onboarding: 'services' | 'browse' | 'done';
+  onboarding: 'browse' | 'done';
   services: string[];
   viewers: Viewer[];
   nextViewer: number;
@@ -31,6 +31,8 @@ const sampleShows: Show[] = catalog.map(({ kind, artwork, ...show }) => ({
   artwork: artwork?.map(path => path.replace(/^\./, ''))
 }));
 const sampleById = new Map(sampleShows.map(show => [show.id, show]));
+export const starterShows = ['mock-1', 'mock-11', 'mock-12', 'mock-3']
+  .map(id => sampleById.get(id)!);
 const titleId = /^(?:mock-\d+|sample-[a-z0-9-]+|tmdb:[1-9]\d*|manual:[a-f0-9]{32})$/;
 
 export function localDay(now = new Date()): string {
@@ -39,7 +41,7 @@ export function localDay(now = new Date()): string {
 
 export function emptyHousehold(day = localDay()): Household {
   return {
-    onboarding: 'services',
+    onboarding: 'browse',
     services: [],
     viewers: [{ id: 1, name: 'Viewer 1' }, { id: 2, name: 'Viewer 2' }],
     nextViewer: 3,
@@ -105,7 +107,8 @@ export function decodeHousehold(raw: string, day = localDay()): Household | null
     const titles = parsed.titles === undefined ? {} : parsed.titles;
     if (!record(titles) || !Object.entries(titles).every(([id, value]) => storedTitle(id, value))
       || !Object.keys(parsed.shelf).every(id => sampleById.has(id) || Object.hasOwn(titles, id))) return null;
-    return forLocalDay({ ...parsed, titles } as Household, day);
+    const onboarding = parsed.onboarding === 'done' ? 'done' : 'browse';
+    return forLocalDay({ ...parsed, onboarding, titles } as Household, day);
   } catch {
     return null;
   }

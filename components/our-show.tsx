@@ -7,12 +7,12 @@ import {
 } from '../lib/household';
 import type { Show } from '../lib/tv';
 import Browse from './browse';
-import HouseholdSettings, { BackupControls, ServiceChoices } from './household-settings';
-import { Button, Icon } from './shared';
+import HouseholdSettings from './household-settings';
+import { Icon } from './shared';
 import Shelf from './shelf';
 import Tonight from './tonight';
 
-type Page = 'services' | 'browse' | 'shelf' | 'settings' | 'tonight';
+type Page = 'browse' | 'shelf' | 'settings' | 'tonight';
 const storageUnavailable = 'This browser couldn’t save your household. Download a backup to keep your changes.';
 
 export default function OurShow() {
@@ -20,7 +20,7 @@ export default function OurShow() {
   const [ready, setReady] = useState(false);
   const [canSave, setCanSave] = useState(true);
   const [storageMessage, setStorageMessage] = useState('');
-  const [page, setPage] = useState<Page>('services');
+  const [page, setPage] = useState<Page>('browse');
   const [announcement, announce] = useState('');
   const screen = useRef<HTMLElement>(null);
 
@@ -73,7 +73,6 @@ export default function OurShow() {
   }
 
   function browse() {
-    setState(current => current.onboarding === 'services' ? { ...current, onboarding: 'browse' } : current);
     open('browse');
   }
 
@@ -123,7 +122,7 @@ export default function OurShow() {
     if (file.size > 5_000_000) return 'Choose an Our Show JSON backup smaller than 5 MB.';
     const restored = decodeHousehold(await file.text());
     if (!restored) return 'That file is not a valid Our Show household backup.';
-    if ((state.onboarding !== 'services' || state.services.length > 0 || !canSave)
+    if ((state.onboarding === 'done' || state.services.length > 0 || Object.keys(state.shelf).length > 0 || !canSave)
       && !window.confirm('Replace the household on this browser with this backup?')) return 'The current household was kept.';
 
     setState(restored);
@@ -155,14 +154,7 @@ export default function OurShow() {
     <main ref={screen} className={mainTab ? 'main-tab' : undefined} tabIndex={-1}>
       {storageMessage && <p className="storage-message small" role="alert">{storageMessage}</p>}
       {!ready ? <p>Loading Our Show…</p> : {
-        services: <>
-          <h1>Where do you watch?</h1>
-          <p className="intro">Choose the streaming services your household uses.</p>
-          <ServiceChoices selected={state.services} onChange={setService} />
-          <Button className="primary wide" onClick={browse}>Continue</Button>
-          <BackupControls onImport={restore} />
-        </>,
-        browse: <Browse state={state} onAdd={add} onFinish={finish} />,
+        browse: <Browse state={state} onAdd={add} onFinish={finish} onRestore={restore} />,
         shelf: <Shelf state={state} onBrowse={browse} onRemove={id => {
           setState(current => removeShow(current, id));
           announce('Removed from your shelf.');

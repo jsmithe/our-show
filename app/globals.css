@@ -194,7 +194,7 @@ nav [aria-current="page"]::after {
   font-weight: 800;
   overflow-wrap: anywhere;
 }
-.catalog-footer { position: sticky; bottom: 0; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); background: var(--paper); }
+.catalog-footer { position: sticky; bottom: 0; z-index: 1; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); background: var(--paper); }
 .shelf-list { display: grid; gap: 12px; margin-top: 18px; }
 .shelf-title { padding: 5px 12px 8px; border-radius: 14px; border: 1px solid var(--line); background: #fffaf3; }
 .shelf-title summary { font-size: 1.15rem; font-weight: 750; }
@@ -340,7 +340,33 @@ nav [aria-current="page"]::after {
   font-size: .88rem;
 }
 .result-copy .button { justify-self: start; padding-inline: 12px; }
-.result-copy .button[aria-disabled="true"] { background: var(--wash); cursor: default; }
+.result-copy .button[aria-disabled="true"], .starter-card .button[aria-disabled="true"] {
+  background: var(--wash);
+  cursor: default;
+}
+.starter-shows { margin-block: 16px; }
+.starter-shows > h2 { margin-inline: 4px; }
+.starter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+}
+.starter-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  background: #fffaf3;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+}
+.starter-card h3 { font-size: 1rem; line-height: 1.2; }
+.starter-art { width: 100%; aspect-ratio: 1.54; object-fit: cover; border-radius: 8px; }
+.starter-card .button { margin-top: auto; padding-inline: 12px; }
 .backup-controls { margin-block: 8px; }
 .storage-message { background: var(--wash); border-radius: 9px; margin-bottom: 10px; padding: 8px 12px; }
 .credits img { display: block; width: 64px; height: auto; margin-bottom: 6px; }
