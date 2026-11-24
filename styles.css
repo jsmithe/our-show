@@ -252,3 +252,41 @@ nav [aria-current="page"]::after {
 .viewer-preferences legend { padding: 0 5px; font-weight: 750; overflow-wrap: anywhere; }
 .button.primary img { filter: brightness(0) invert(1); }
 .catalog-card button[aria-disabled="true"] { background: var(--wash); cursor: default; }
+
+@media (max-width: 36rem), (max-height: 36rem) and (pointer: coarse) {
+  .app:has(main > .hero) > .masthead {
+    min-height: 52px;
+    padding-top: 4px;
+  }
+
+  main:has(> .hero) { padding-bottom: 16px; }
+  main:has(> .hero) > h1 { margin-block: 0 10px; }
+
+  .hero { --art-max-height: clamp(8rem, 31svh, 16rem); }
+  .hero-art, .slides { max-height: var(--art-max-height); }
+  .slides { width: 100%; }
+  .slides .hero-art { aspect-ratio: auto; }
+  .hero-art.title-tile {
+    aspect-ratio: auto;
+    min-height: min(62vw, var(--art-max-height));
+    max-height: none;
+  }
+
+  .hero h2 {
+    margin-top: 10px;
+    font-size: clamp(2rem, min(10.5vw, 5.8svh), 2.95rem);
+    overflow-wrap: anywhere;
+  }
+
+  .hero-copy { margin-bottom: 10px; }
+  .hero .actions { gap: 8px; }
+  .hero .actions .button {
+    min-height: 52px;
+    font-size: 1.3rem;
+  }
+
+  /* Keep the tabs below the actions when Tonight needs to scroll. */
+  .app:has(main > .hero) > nav { position: static; }
+  main:has(> .hero) + nav button { min-height: 56px; }
+  main:has(> .hero) + nav img { width: 24px; height: 24px; }
+}
