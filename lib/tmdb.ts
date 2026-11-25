@@ -34,10 +34,35 @@ type Options = {
   now?: () => number;
 };
 
-export function createSearchHandler({ token, fetcher, clientKey = () => 'local', now = Date.now }: Options) {
+export function tmdbClientKey(request: Request) {
+  // Vercel overwrites this header at its edge. Off Vercel all callers share a local limit.
+  return process.env.VERCEL
+    ? request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim().slice(0, 64) || 'unknown'
+    : 'local';
+}
+
+export function createTmdbRateLimiter() {
   let windowStart = -Infinity;
   let requests = 0;
   const clients = new Map<string, number>();
+
+  return (key: string, time: number): number | undefined => {
+    if (time - windowStart >= windowMs) {
+      windowStart = time;
+      clients.clear();
+      requests = 0;
+    }
+    const used = clients.get(key) ?? 0;
+    if (requests >= instanceLimit || used >= clientLimit) {
+      return Math.ceil((windowStart + windowMs - time) / 1000);
+    }
+    requests++;
+    clients.set(key, used + 1);
+  };
+}
+
+export function createSearchHandler({ token, fetcher, clientKey = () => 'local', now = Date.now }: Options) {
+  const rateLimit = createTmdbRateLimiter();
 
   function reply(body: object, status = 200, retryAfter?: number) {
     const headers: Record<string, string> = { 'Cache-Control': 'no-store' };
@@ -55,19 +80,8 @@ export function createSearchHandler({ token, fetcher, clientKey = () => 'local',
     const secret = token()?.trim();
     if (!secret) return reply({ error: 'TV search is unavailable. You can still add a show manually.' }, 503);
 
-    const time = now();
-    if (time - windowStart >= windowMs) {
-      windowStart = time;
-      clients.clear();
-      requests = 0;
-    }
-    const key = clientKey(request);
-    const used = clients.get(key) ?? 0;
-    if (requests >= instanceLimit || used >= clientLimit) {
-      return reply({ error: 'Too many searches. Try again shortly.' }, 429, Math.ceil((windowStart + windowMs - time) / 1000));
-    }
-    requests++;
-    clients.set(key, used + 1);
+    const retryAfter = rateLimit(clientKey(request), now());
+    if (retryAfter !== undefined) return reply({ error: 'Too many searches. Try again shortly.' }, 429, retryAfter);
 
     const url = new URL(searchEndpoint);
     url.search = new URLSearchParams({ query, include_adult: 'false', language: 'en-US', page: '1' }).toString();

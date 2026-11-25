@@ -1,7 +1,58 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fitMessage, rankedShows, showById, type Household } from '../lib/household';
 import type { Show } from '../lib/tv';
-import { Artwork, Button, CheckChoice, Icon, ShowMeta } from './shared';
+import { readWatchResponse, watchHint, watchSeriesId, type CurrentWatchAvailability } from '../lib/watch-availability';
+import { Artwork, Button, CheckChoice, Icon } from './shared';
+
+function useWatchAvailability(seriesId: number | undefined) {
+  const [result, setResult] = useState<(CurrentWatchAvailability & { seriesId: number })>();
+
+  useEffect(() => {
+    if (seriesId === undefined) return;
+    const controller = new AbortController();
+    let timer: number | undefined;
+    let expiresAt = 0;
+    let loading = false;
+
+    async function refresh(id: number) {
+      const startedAt = Date.now();
+      if (loading || expiresAt > startedAt) return;
+      window.clearTimeout(timer);
+      if (expiresAt) setResult(undefined);
+      loading = true;
+      try {
+        const response = await fetch('/api/tv/watch-providers?id=' + id, {
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(8000)])
+        });
+        if (!response.ok) return;
+        const current = readWatchResponse(await response.json(), id, startedAt, Date.now());
+        if (!current || controller.signal.aborted) return;
+        expiresAt = current.expiresAt;
+        setResult({ ...current, seriesId: id });
+        timer = window.setTimeout(() => void refresh(id), Math.max(0, expiresAt - Date.now()));
+      } catch {
+        // Provider failures leave the decision available with an unknown hint.
+      } finally {
+        loading = false;
+      }
+    }
+
+    const resume = () => {
+      if (document.visibilityState === 'visible') void refresh(seriesId);
+    };
+    void refresh(seriesId);
+    window.addEventListener('focus', resume);
+    document.addEventListener('visibilitychange', resume);
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+      window.removeEventListener('focus', resume);
+      document.removeEventListener('visibilitychange', resume);
+    };
+  }, [seriesId]);
+
+  return result && result.seriesId === seriesId && result.expiresAt > Date.now() ? result.availability : undefined;
+}
 
 function Gallery({ show }: { show: Show }) {
   const slides = useRef<HTMLDivElement>(null);
@@ -48,6 +99,9 @@ export default function Tonight({ state, onBrowse, onPass, onPick, onUndo, onReo
   const suggestion = rankedShows(state)[0];
   const show = pick ?? suggestion?.show;
   const watching = state.viewers.filter(viewer => state.watching.includes(viewer.id));
+  const availability = useWatchAvailability(show && (state.services.length || pick) ? watchSeriesId(show) : undefined);
+  const hint = watchHint(state.services, availability);
+  const watchLink = pick && availability?.link;
 
   return <>
     <h1>Tonight</h1>
@@ -56,12 +110,19 @@ export default function Tonight({ state, onBrowse, onPass, onPick, onUndo, onReo
       <h2>{show.title}</h2>
       <div className="hero-copy">
         <p>{pick ? 'You picked this for tonight.' : fitMessage(state, suggestion)}</p>
-        <p className="small"><ShowMeta show={show} /></p>
+        <div className="small tonight-meta">
+          {show.kind === 'channel' ? 'Saved channel' : show.firstAirYear}
+          {hint && <span aria-live="polite" title={hint.text}>{hint.text}</span>}
+        </div>
       </div>
       <div className="actions">{pick ? <Button onClick={onReopen}>Reopen decision</Button> : <>
         <Button className="primary" onClick={() => onPick(show)}>Let’s watch</Button>
         <Button onClick={() => onPass(show)}>Not tonight</Button>
       </>}</div>
+      {(watchLink || hint?.matched) && <div className="small watch-credit">
+        {watchLink && <a href={watchLink}>Check where to watch</a>}
+        <span>Availability data from <a href="https://www.justwatch.com/us">JustWatch</a></span>
+      </div>}
     </article> : lastPass
       ? <div className="empty"><h2>You’ve seen all tonight’s options</h2><p>Undo a pass to give a show another look.</p></div>
       : <div className="empty">

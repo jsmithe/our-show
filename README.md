@@ -12,9 +12,9 @@ Use Node.js 24 and npm.
 2. Copy `.env.example` to `.env.local`. In your TMDB account, open **Settings → API** and copy the **API Read Access Token** into `TMDB_READ_ACCESS_TOKEN`. Use the read access token, without a `Bearer ` prefix.
 3. Run `npm run dev` and open [localhost:3000](http://localhost:3000/).
 
-Search uses the server-side TV search route. With no credential configured, the app still works with manual entries and saved shows. Keep `.env.local` private. The token is never needed in a `NEXT_PUBLIC_` variable.
+TV search and Tonight availability use server-side routes. With no credential configured, the app still works with manual entries and saved shows. Keep `.env.local` private and use the server-side variable shown above.
 
-Run `npm test` for focused search and household tests with mock TMDB responses. Run `npm run typecheck` for TypeScript checks, or `npm run build` and `npm start` to try a production build locally.
+Run `npm test` for household, search, and provider tests with mocked TMDB responses. Run `npm run typecheck` for TypeScript checks, or `npm run build` and `npm start` to try a production build locally. See the [authenticated provider validation](docs/research/streaming-availability-validation.md) for the live smoke test.
 
 ## Deploy to Vercel Hobby
 
@@ -34,9 +34,9 @@ Backups contain household names and preferences. They stay in the browser unless
 
 ## Current scope
 
-- A new household starts on **Add our shows**, with four familiar TV picks, search, and manual entry. Streaming service selection is optional in Household settings.
+- A new household starts on **Add our shows**, with four familiar TV picks, search, and manual entry. Household settings offer five optional U.S. streaming services: Netflix, Prime Video, Disney+, Hulu, and Paramount+.
 - Add TV series from TMDB search or enter a title manually. A search fetches the first English-language results page. The Shelf stores title details, artwork references, and stable TMDB IDs locally. Saved shows and manual entry work when TMDB search is unavailable, and an unavailable image falls back to the title.
-- Search results show **Availability unknown**. Service choices are kept at the household level. Any labels on migrated sample titles are marked as sample data. There is no regional provider, subscription, or rental lookup.
+- Tonight uses current JustWatch listings from TMDB to show matching U.S. subscriptions. The confirmed pick can link to TMDB’s Watch page. Listings are series-level hints, and service selections stay in the browser. Search availability remains unknown and sample labels elsewhere stay marked as sample data.
 - Search uses a short upstream timeout, a 15-minute server fetch cache, a per-client limit, and a per-instance limit. These limits are best effort on serverless instances.
 - Tonight preferences and progress are per viewer. A pass or confirmed pick applies to the current local day. Household data is local to this browser, with no account or cloud sync.
 - Existing YouTube channels can still appear on the Shelf and in Tonight. Channel search and adding channels are future enhancements.

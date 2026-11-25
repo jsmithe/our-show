@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   addShow, changeDecision, decodeHousehold, emptyHousehold, forLocalDay, legacyKey, loadHousehold,
-  localDay, manualShow, rankedShows, removeShow, removeViewer, shelfShows, starterShows, storageKey
+  localDay, manualShow, rankedShows, removeShow, removeViewer, services, shelfShows, starterShows, storageKey
 } from '../lib/household.ts';
 import type { Show } from '../lib/tv.ts';
+import { watchHint, type WatchAvailability } from '../lib/watch-availability.ts';
 
 const day = '2026-11-24';
 const tomorrow = '2026-11-25';
@@ -80,6 +81,16 @@ test('valid POC data is copied with identities, service choices, preferences, an
   assert.equal(backing.get(legacyKey), raw);
 });
 
+test('Hulu survives backup and restore alongside all four existing service keys', () => {
+  assert.deepEqual(services, ['Prime Video', 'Netflix', 'Paramount+', 'Disney+', 'Hulu']);
+  const older = { ...addShow(emptyHousehold(day), show), services: ['Netflix', 'Prime Video', 'Disney+', 'Paramount+'] };
+  assert.deepEqual(decodeHousehold(JSON.stringify(older), day), older);
+  const updated = { ...older, services: [...older.services, 'Hulu'] };
+  const backup = JSON.stringify(updated, null, 2);
+  assert.deepEqual(decodeHousehold(backup, day), updated);
+  assert.deepEqual(loadHousehold({ getItem: key => key === storageKey ? backup : null }, day).state, updated);
+});
+
 test('unreadable current records are flagged; invalid backups cannot inject artwork URLs', () => {
   const storage = { getItem: (key: string) => key === storageKey ? '{broken' : null };
   assert.equal(loadHousehold(storage, day).unreadable, true);
@@ -96,6 +107,21 @@ test('ranking favors shared fit, uses the participating viewers, and keeps finis
   assert.equal(rankedShows({ ...state, watching: [1] })[0].show.id, show.id);
   state = addShow(state, manualShow('Unrated Show')!);
   assert.equal(rankedShows(state).at(-1)?.show.id, show.id);
+});
+
+test('changing subscriptions or provider results leaves tied Tonight options and passes in the same order', () => {
+  const state = starterShows.reduce(addShow, emptyHousehold(day));
+  const ids = (current: typeof state) => rankedShows(current).map(({ show }) => show.id);
+  const order = ids(state);
+  assert.equal(order.length, starterShows.length);
+  const availability: WatchAvailability = { services: ['Netflix', 'Hulu'], link: null };
+  for (const selected of [['Netflix'], ['Hulu'], [...services]]) {
+    const household = { ...state, services: selected };
+    assert.notEqual(watchHint(selected, availability)?.text, watchHint(selected)?.text);
+    assert.deepEqual(ids(household), order);
+    const passed = changeDecision(household, { action: 'pass', id: order[0] }, day);
+    assert.deepEqual(ids(passed), order.slice(1));
+  }
 });
 
 test('passes, undo, pick, and reopen survive reload and reset at the next local day', () => {
