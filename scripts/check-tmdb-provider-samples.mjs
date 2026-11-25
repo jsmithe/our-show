@@ -37,7 +37,7 @@ function region(result) {
 try {
   const directory = await get('watch/providers/tv?watch_region=US');
   const providers = directory.results.filter(({ provider_name }) =>
-    /Netflix|Prime Video|Amazon Video|Disney\+|Hulu|Paramount\+|PBS Kids/i.test(provider_name)
+    /Netflix|Prime Video|Amazon Video|Disney|Hulu|Paramount|PBS Kids|BBC iPlayer/i.test(provider_name)
   ).map(({ provider_id, provider_name }) => ({ id: provider_id, name: provider_name }));
   console.log('TMDB_US_DIRECTORY ' + JSON.stringify(providers));
   for (const [id, title] of Object.entries(samples)) {
