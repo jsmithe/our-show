@@ -56,5 +56,13 @@ export function readWatchResponse(value: unknown, seriesId: number, startedAt: n
 export function watchHint(selected: readonly string[], availability?: WatchAvailability) {
   if (!selected.length) return;
   const matches = services.filter(service => selected.includes(service) && availability?.services.includes(service));
-  return { text: matches.length ? 'Listed on ' + matches.join(', ') : 'Availability unknown', matched: matches.length > 0 };
+  if (matches.length > 2) {
+    const additional = matches.slice(1);
+    return { text: `Listed on ${matches[0]} +${additional.length} more`, matched: true, additional };
+  }
+  return {
+    text: matches.length ? 'Listed on ' + matches.join(', ') : 'Availability unknown',
+    matched: matches.length > 0,
+    additional: []
+  };
 }

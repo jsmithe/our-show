@@ -131,10 +131,18 @@ test('Tonight matches local selections, ignores expired or delayed responses and
   const response = { services: ['Disney+', 'Hulu', 'Hulu', 'YouTube'], link: watchLink, validForMs: 10 };
   const current = readWatchResponse(response, 82728, 5, 14);
   assert.equal(current?.expiresAt, 15);
-  assert.deepEqual(watchHint(['Hulu', 'Hulu', 'YouTube'], current?.availability), { text: 'Listed on Hulu', matched: true });
+  assert.deepEqual(watchHint(['Hulu', 'Hulu', 'YouTube'], current?.availability),
+    { text: 'Listed on Hulu', matched: true, additional: [] });
   assert.equal(watchHint([], current?.availability), undefined);
   assert.equal(watchHint(['Netflix'], current?.availability)?.text, 'Availability unknown');
   assert.equal(readWatchResponse(response, 82728, 5, 15), undefined);
   assert.equal(readWatchResponse({ ...response, validForMs: watchTtlMs + 1 }, 82728, 5, 6), undefined);
   assert.equal(watchHint(['Disney+'])?.text, 'Availability unknown');
+});
+
+test('a compact multi-service hint retains every additional match for disclosure', () => {
+  assert.deepEqual(watchHint(['Netflix', 'Hulu', 'Disney+', 'Prime Video'],
+    { services: ['Prime Video', 'Netflix', 'Hulu'], link: null }), {
+    text: 'Listed on Prime Video +2 more', matched: true, additional: ['Netflix', 'Hulu']
+  });
 });

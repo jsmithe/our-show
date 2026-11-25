@@ -34,7 +34,7 @@ Backups contain household names and preferences. They stay in the browser unless
 
 ## Current scope
 
-- A new household starts on **Add our shows**, with four familiar TV picks, search, and manual entry. Household settings offer five optional U.S. streaming services: Netflix, Prime Video, Disney+, Hulu, and Paramount+.
+- A new household starts on **Add our shows**, with four familiar TV picks, search, and manual entry. Household settings offer optional selections for Netflix, Prime Video, Disney+, Hulu, and Paramount+ in the U.S.
 - Add TV series from TMDB search or enter a title manually. A search fetches the first English-language results page. The Shelf stores title details, artwork references, and stable TMDB IDs locally. Saved shows and manual entry work when TMDB search is unavailable, and an unavailable image falls back to the title.
 - Tonight uses current JustWatch listings from TMDB to show matching U.S. subscriptions. The confirmed pick can link to TMDB’s Watch page. Listings are series-level hints, and service selections stay in the browser. Search availability remains unknown and sample labels elsewhere stay marked as sample data.
 - Search uses a short upstream timeout, a 15-minute server fetch cache, a per-client limit, and a per-instance limit. These limits are best effort on serverless instances.
