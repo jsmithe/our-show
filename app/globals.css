@@ -296,7 +296,14 @@ nav [aria-current="page"]::after {
 
 @media (max-width: 36rem) and (max-height: 35rem), (max-height: 35rem) and (pointer: coarse) {
   .hero { --art-max-height: clamp(6.5rem, 22svh, 12rem); }
-  .hero .actions:has(> .primary) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero .actions:has(> .primary) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    position: sticky;
+    z-index: 1;
+    bottom: env(safe-area-inset-bottom, 0px);
+    padding-block: 4px;
+    background: var(--paper);
+  }
   .hero .actions .button { padding-inline: 8px; }
 }
 
