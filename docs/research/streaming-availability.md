@@ -4,6 +4,12 @@ Research for [issue #10](https://github.com/jsmithe/our-show/issues/10) · Novem
 
 **Recommendation.** Use TMDB for a U.S. subscription hint in Tonight and on the confirmed pick, pending an authenticated API smoke test. Show “Listed on Disney+” when a current lookup lists a direct subscription that matches a household selection. Keep provider information out of ranking and filtering. A title listing helps a parent find the show, while the service still determines what their account can play.
 
+## Release decision
+
+Start with five optional U.S. direct subscriptions in Household: Netflix, Prime Video, Disney+, Hulu, and Paramount+. Hulu was added to the shortlist after the original sample below. Preserve existing selections and older backups. Validate Hulu's mapping and check a known U.S. Hulu listing in the authenticated smoke test tracked in [issue #14](https://github.com/jsmithe/our-show/issues/14).
+
+Ship the display-only Tonight hint with the curated choices. Revisit a searchable picker when households repeatedly report missing services. A fully dynamic regional list is a later consideration for expansion beyond the U.S.
+
 ## What Our Show does today
 
 The deployed TV search returned the expected TMDB IDs for all five sample titles without provider fields. On [main at `7132390`](https://github.com/jsmithe/our-show/commit/7132390feca38d28dd12d7863ea283fdf4e66472), the [server-side search](../../lib/tmdb.ts) calls only TMDB’s `/search/tv` with a server-held token. It stores title metadata and artwork under `tmdb:<id>`. The [search card](../../components/browse.tsx#L113) prints “Availability unknown” for every result. The Bluey and Puffin Rock results described in the issue reflect this code path, so selecting Netflix could never resolve them.
