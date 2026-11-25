@@ -62,6 +62,12 @@ h3 { font-size: 1.18rem; }
 .hero h2 { margin: 17px 8px 4px; font-size: clamp(2.3rem, 10.5vw, 2.95rem); }
 .hero-copy { margin: 0 8px 14px; }
 .hero-copy .small { margin-top: 5px; }
+.tonight-meta { display: flex; gap: 8px; }
+.tonight-meta:empty { display: none; }
+.watch-credit { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 8px 8px 0; }
+.watch-credit a { color: inherit; text-underline-offset: 2px; }
+.watch-credit .watch-link { display: inline-flex; align-items: center; min-height: 44px; }
+.watch-credit details { flex-basis: 100%; }
 .hero-art, .slides { aspect-ratio: 1.54; border-radius: 26px; }
 .hero-art { width: 100%; display: block; object-fit: cover; }
 .slides {
@@ -286,6 +292,19 @@ nav [aria-current="page"]::after {
 
   /* Keep the tabs below the actions when Tonight needs to scroll. */
   .app:has(main > .hero) > nav { position: static; }
+}
+
+@media (max-width: 36rem) and (max-height: 35rem), (max-height: 35rem) and (pointer: coarse) {
+  .hero { --art-max-height: clamp(6.5rem, 22svh, 12rem); }
+  .hero .actions:has(> .primary) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    position: sticky;
+    z-index: 1;
+    bottom: env(safe-area-inset-bottom, 0px);
+    padding-block: 4px;
+    background: var(--paper);
+  }
+  .hero .actions .button { padding-inline: 8px; }
 }
 
 .shelf-thumb.title-tile { display: none; }

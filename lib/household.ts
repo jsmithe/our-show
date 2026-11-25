@@ -3,7 +3,7 @@ import { isTmdbImage, record, type Show } from './tv.ts';
 
 export const legacyKey = 'our-show-v1';
 export const storageKey = 'our-show-v2';
-export const services = ['Prime Video', 'Netflix', 'Paramount+', 'Disney+'];
+export { services } from './watch-availability.ts';
 export const preferences = { unknown: 'Unknown', love: 'Love it', okay: 'It’s okay', dislike: 'No thanks' };
 export const watchStates = { unknown: 'Unknown', started: 'Started', finished: 'Finished' };
 
@@ -199,11 +199,9 @@ function fit(state: Household, show: Show) {
 }
 
 export function rankedShows(state: Household) {
-  const matchesService = (show: Show) => !!show.service && state.services.includes(show.service);
   return shelfShows(state).filter(show => !state.tonight.passed.includes(show.id))
     .map(show => fit(state, show))
-    .sort((a, b) => a.dislikes - b.dislikes || a.unknowns - b.unknowns || b.loves - a.loves
-      || Number(matchesService(b.show)) - Number(matchesService(a.show)));
+    .sort((a, b) => a.dislikes - b.dislikes || a.unknowns - b.unknowns || b.loves - a.loves);
 }
 
 export function fitMessage(state: Household, { show, dislikes, unknowns, loves }: ReturnType<typeof fit>) {
