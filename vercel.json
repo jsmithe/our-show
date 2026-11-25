@@ -1,4 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "buildCommand": "if [ \"$VERCEL_ENV\" = preview ] && [ \"$VERCEL_GIT_COMMIT_REF\" = issue-14-streaming-availability ]; then node scripts/check-tmdb-provider-samples.mjs; fi; npm run build"
 }
